@@ -1,59 +1,268 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <title>Your Site Title</title>
-    <script>
-        // 你的主仓库的 GitHub Pages URL
-        const primarySiteUrl = 'https://meektion.github.io';
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loading Site...</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         
-        // 首先，尝试通过 fetch 获取主站的内容，以实现更平滑的代理
-        // 但如果只是为了重定向，也可以用下面的 location.replace
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
         
-        // 方法一：直接重定向（简单直接）
-        // window.location.replace(primarySiteUrl + window.location.pathname);
+        .container {
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        
+        p {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            opacity: 0.9;
+        }
+        
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            margin: 20px auto;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .btn {
+            display: inline-block;
+            background: white;
+            color: #2575fc;
+            padding: 12px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .info-box {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+            text-align: left;
+        }
+        
+        .info-box h3 {
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .info-box ul {
+            list-style-type: none;
+            padding-left: 10px;
+        }
+        
+        .info-box li {
+            margin-bottom: 8px;
+            position: relative;
+            padding-left: 20px;
+        }
+        
+        .info-box li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #6a11cb;
+            font-weight: bold;
+        }
+        
+        .status {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .domain {
+            font-weight: bold;
+            color: #ffcc00;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Loading Content</h1>
+        <p>We're fetching content from the primary site. Please wait...</p>
+        
+        <div class="loader"></div>
+        
+        <p class="status">Connecting to: <span class="domain" id="target-domain">https://meektion.github.io</span></p>
+        
+        <a href="#" class="btn" id="manual-redirect">Click here if not redirected</a>
+        
+        <div class="info-box">
+            <h3>How this works:</h3>
+            <ul>
+                <li>This page acts as a proxy for your main GitHub Pages site</li>
+                <li>Content is loaded from your primary repository</li>
+                <li>All links are rewritten to maintain the current domain</li>
+                <li>This allows multiple domains to serve the same content</li>
+            </ul>
+        </div>
+    </div>
 
-        // 方法二：使用 fetch 和 DOM 操作实现无刷新代理（更高级）
+    <script>
+        // Configuration - Update these values for your setup
+        const CONFIG = {
+            primarySiteUrl: 'https://meektion.github.io', // Your main GitHub Pages URL
+            proxyDomain: 'https://www.your-custom-domain.com', // The domain of this proxy page
+            enableLinkRewriting: true, // Set to false to disable link rewriting
+            fallbackRedirect: true // Set to false to disable automatic redirect on error
+        };
+        
+        // Update displayed domain
+        document.getElementById('target-domain').textContent = CONFIG.primarySiteUrl;
+        
+        // Manual redirect button
+        document.getElementById('manual-redirect').addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.replace(CONFIG.primarySiteUrl + window.location.pathname);
+        });
+        
+        // Main proxy function
         (async function() {
             try {
-                const response = await fetch(primarySiteUrl + window.location.pathname);
+                const targetUrl = CONFIG.primarySiteUrl + window.location.pathname + window.location.search;
+                
+                console.log('Fetching content from:', targetUrl);
+                
+                const response = await fetch(targetUrl);
+                
                 if (response.ok) {
                     const html = await response.text();
+                    
+                    // Parse the HTML
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    
+                    // Rewrite links if enabled
+                    if (CONFIG.enableLinkRewriting) {
+                        rewriteLinks(doc, CONFIG.primarySiteUrl, CONFIG.proxyDomain);
+                    }
+                    
+                    // Replace the current document
                     document.open();
-                    document.write(html);
+                    document.write(doc.documentElement.outerHTML);
                     document.close();
-                    // 重写页面内的所有链接，使其仍然通过代理仓库
-                    rewriteLinks(primarySiteUrl, ‘https://www.domain2.com’);
+                    
+                    console.log('Content loaded successfully with link rewriting');
+                    
                 } else {
-                    // 如果获取失败，降级到直接重定向
-                    window.location.replace(primarySiteUrl + window.location.pathname);
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
+                
             } catch (error) {
                 console.error('Proxy failed:', error);
-                window.location.replace(primarySiteUrl);
+                
+                // Fallback to redirect
+                if (CONFIG.fallbackRedirect) {
+                    console.log('Falling back to redirect');
+                    window.location.replace(CONFIG.primarySiteUrl + window.location.pathname);
+                } else {
+                    // Show error message
+                    document.querySelector('.container').innerHTML = `
+                        <h1>Connection Error</h1>
+                        <p>We couldn't load content from the primary site.</p>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                        <a href="${CONFIG.primarySiteUrl}" class="btn">Visit Primary Site</a>
+                        <div class="info-box">
+                            <h3>Troubleshooting tips:</h3>
+                            <ul>
+                                <li>Check if your primary site URL is correct</li>
+                                <li>Verify the primary site is accessible</li>
+                                <li>Check your network connection</li>
+                                <li>Try refreshing the page</li>
+                            </ul>
+                        </div>
+                    `;
+                }
             }
         })();
-
-        function rewriteLinks(oldBase, newBase) {
-            const links = document.querySelectorAll('a[href]');
+        
+        // Function to rewrite links in the document
+        function rewriteLinks(doc, oldBase, newBase) {
+            // Process anchor tags
+            const links = doc.querySelectorAll('a[href]');
             links.forEach(link => {
                 const href = link.getAttribute('href');
                 if (href.startsWith(oldBase)) {
                     link.setAttribute('href', href.replace(oldBase, newBase));
+                } else if (href.startsWith('/')) {
+                    // Handle relative URLs
+                    link.setAttribute('href', newBase + href);
                 }
-                // 处理相对路径链接，如果需要的话
-                // else if (href.startsWith('/')) {
-                //     link.setAttribute('href', newBase + href);
-                // }
+                // Note: External links (http/https) are left unchanged
             });
+            
+            // Process other elements with URL attributes if needed
+            // For example: images, scripts, stylesheets, etc.
+            const resources = doc.querySelectorAll('[src], [href]');
+            resources.forEach(resource => {
+                const src = resource.getAttribute('src') || resource.getAttribute('href');
+                if (src && src.startsWith(oldBase)) {
+                    if (resource.hasAttribute('src')) {
+                        resource.setAttribute('src', src.replace(oldBase, newBase));
+                    } else {
+                        resource.setAttribute('href', src.replace(oldBase, newBase));
+                    }
+                }
+            });
+            
+            // Update base tag if it exists, or create one
+            let baseTag = doc.querySelector('base');
+            if (!baseTag) {
+                baseTag = doc.createElement('base');
+                doc.head.prepend(baseTag);
+            }
+            baseTag.setAttribute('href', newBase);
+            
+            console.log('Links rewritten successfully');
         }
     </script>
-</head>
-<body>
-    <!-- 降级处理：如果用户禁用了JavaScript，显示一个跳转链接 -->
-    <noscript>
-        <p>Please enable JavaScript to view this site. Or <a href="https://yourusername.github.io/my-awesome-site">click here</a> to go to the primary site.</p>
-    </noscript>
-    <p>Loading... If you are not redirected, <a href="#" onclick="window.location.replace(primarySiteUrl)">click here</a>.</p>
 </body>
 </html>
