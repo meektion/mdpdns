@@ -2,16 +2,58 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>正在重定向……</title>
-</head>
-    <script language="javascript">
-        var domain = "meektion.github.io";
-        var current = window.location.href;
-        var target = current.substring(current.indexOf('/', current.indexOf(':') + 3));
-        window.location.href = "//" + domain + target;
-        location.href = "//" + domain + target;
+    <title>Your Site Title</title>
+    <script>
+        // 你的主仓库的 GitHub Pages URL
+        const primarySiteUrl = 'https://meektion.github.io';
+        
+        // 首先，尝试通过 fetch 获取主站的内容，以实现更平滑的代理
+        // 但如果只是为了重定向，也可以用下面的 location.replace
+        
+        // 方法一：直接重定向（简单直接）
+        // window.location.replace(primarySiteUrl + window.location.pathname);
+
+        // 方法二：使用 fetch 和 DOM 操作实现无刷新代理（更高级）
+        (async function() {
+            try {
+                const response = await fetch(primarySiteUrl + window.location.pathname);
+                if (response.ok) {
+                    const html = await response.text();
+                    document.open();
+                    document.write(html);
+                    document.close();
+                    // 重写页面内的所有链接，使其仍然通过代理仓库
+                    rewriteLinks(primarySiteUrl, ‘https://www.domain2.com’);
+                } else {
+                    // 如果获取失败，降级到直接重定向
+                    window.location.replace(primarySiteUrl + window.location.pathname);
+                }
+            } catch (error) {
+                console.error('Proxy failed:', error);
+                window.location.replace(primarySiteUrl);
+            }
+        })();
+
+        function rewriteLinks(oldBase, newBase) {
+            const links = document.querySelectorAll('a[href]');
+            links.forEach(link => {
+                const href = link.getAttribute('href');
+                if (href.startsWith(oldBase)) {
+                    link.setAttribute('href', href.replace(oldBase, newBase));
+                }
+                // 处理相对路径链接，如果需要的话
+                // else if (href.startsWith('/')) {
+                //     link.setAttribute('href', newBase + href);
+                // }
+            });
+        }
     </script>
-    <body>
-        正在重定向……
-    </body>
+</head>
+<body>
+    <!-- 降级处理：如果用户禁用了JavaScript，显示一个跳转链接 -->
+    <noscript>
+        <p>Please enable JavaScript to view this site. Or <a href="https://yourusername.github.io/my-awesome-site">click here</a> to go to the primary site.</p>
+    </noscript>
+    <p>Loading... If you are not redirected, <a href="#" onclick="window.location.replace(primarySiteUrl)">click here</a>.</p>
+</body>
 </html>
