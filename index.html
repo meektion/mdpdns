@@ -122,6 +122,10 @@
             font-weight: bold;
             color: #ffcc00;
         }
+        
+        .source-domain {
+            color: #4cd964;
+        }
     </style>
 </head>
 <body>
@@ -131,37 +135,40 @@
         
         <div class="loader"></div>
         
-        <p class="status">Connecting to: <span class="domain" id="target-domain">https://meektion.github.io</span></p>
+        <p class="status">Fetching from: <span class="domain source-domain" id="source-domain">https://meektion.github.io</span></p>
+        <p class="status">Displaying as: <span class="domain" id="target-domain">https://meektion.dpdns.org</span></p>
         
         <a href="#" class="btn" id="manual-redirect">Click here if not redirected</a>
         
         <div class="info-box">
             <h3>How this works:</h3>
             <ul>
-                <li>This page acts as a proxy for your main GitHub Pages site</li>
-                <li>Content is loaded from your primary repository</li>
+                <li>Content is loaded from: <strong>meektion.github.io</strong></li>
+                <li>Displayed on domain: <strong>meektion.dpdns.org</strong></li>
                 <li>All links are rewritten to maintain the current domain</li>
-                <li>This allows multiple domains to serve the same content</li>
+                <li>This allows custom domains to serve GitHub Pages content</li>
             </ul>
         </div>
     </div>
 
     <script>
-        // Configuration - Update these values for your setup
+        // Configuration
         const CONFIG = {
-            primarySiteUrl: 'https://meektion.github.io', // Your main GitHub Pages URL
-            proxyDomain: 'https://www.your-custom-domain.com', // The domain of this proxy page
-            enableLinkRewriting: true, // Set to false to disable link rewriting
-            fallbackRedirect: true // Set to false to disable automatic redirect on error
+            primarySiteUrl: 'https://meektion.github.io', // Source: where content comes FROM
+            proxyDomain: 'https://meektion.dpdns.org',    // Target: what users SEE in address bar
+            enableLinkRewriting: true,
+            fallbackRedirect: true
         };
         
-        // Update displayed domain
-        document.getElementById('target-domain').textContent = CONFIG.primarySiteUrl;
+        // Update displayed domains
+        document.getElementById('source-domain').textContent = CONFIG.primarySiteUrl;
+        document.getElementById('target-domain').textContent = CONFIG.proxyDomain;
         
         // Manual redirect button
         document.getElementById('manual-redirect').addEventListener('click', function(e) {
             e.preventDefault();
-            window.location.replace(CONFIG.primarySiteUrl + window.location.pathname);
+            // Redirect to the proxy domain, not the source
+            window.location.replace(CONFIG.proxyDomain + window.location.pathname);
         });
         
         // Main proxy function
@@ -170,6 +177,7 @@
                 const targetUrl = CONFIG.primarySiteUrl + window.location.pathname + window.location.search;
                 
                 console.log('Fetching content from:', targetUrl);
+                console.log('Will display as:', CONFIG.proxyDomain);
                 
                 const response = await fetch(targetUrl);
                 
@@ -190,7 +198,7 @@
                     document.write(doc.documentElement.outerHTML);
                     document.close();
                     
-                    console.log('Content loaded successfully with link rewriting');
+                    console.log('Content loaded successfully from GitHub, displayed with custom domain');
                     
                 } else {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -202,19 +210,20 @@
                 // Fallback to redirect
                 if (CONFIG.fallbackRedirect) {
                     console.log('Falling back to redirect');
-                    window.location.replace(CONFIG.primarySiteUrl + window.location.pathname);
+                    window.location.replace(CONFIG.proxyDomain + window.location.pathname);
                 } else {
                     // Show error message
                     document.querySelector('.container').innerHTML = `
                         <h1>Connection Error</h1>
-                        <p>We couldn't load content from the primary site.</p>
+                        <p>We couldn't load content from the source site.</p>
+                        <p><strong>Source:</strong> ${CONFIG.primarySiteUrl}</p>
                         <p><strong>Error:</strong> ${error.message}</p>
-                        <a href="${CONFIG.primarySiteUrl}" class="btn">Visit Primary Site</a>
+                        <a href="${CONFIG.proxyDomain}" class="btn">Visit Site</a>
                         <div class="info-box">
                             <h3>Troubleshooting tips:</h3>
                             <ul>
-                                <li>Check if your primary site URL is correct</li>
-                                <li>Verify the primary site is accessible</li>
+                                <li>Check if your source site URL is correct</li>
+                                <li>Verify the source site is accessible</li>
                                 <li>Check your network connection</li>
                                 <li>Try refreshing the page</li>
                             </ul>
@@ -233,14 +242,13 @@
                 if (href.startsWith(oldBase)) {
                     link.setAttribute('href', href.replace(oldBase, newBase));
                 } else if (href.startsWith('/')) {
-                    // Handle relative URLs
+                    // Handle relative URLs - point to our proxy domain
                     link.setAttribute('href', newBase + href);
                 }
                 // Note: External links (http/https) are left unchanged
             });
             
-            // Process other elements with URL attributes if needed
-            // For example: images, scripts, stylesheets, etc.
+            // Process other elements with URL attributes
             const resources = doc.querySelectorAll('[src], [href]');
             resources.forEach(resource => {
                 const src = resource.getAttribute('src') || resource.getAttribute('href');
@@ -261,7 +269,7 @@
             }
             baseTag.setAttribute('href', newBase);
             
-            console.log('Links rewritten successfully');
+            console.log('Links rewritten from', oldBase, 'to', newBase);
         }
     </script>
 </body>
