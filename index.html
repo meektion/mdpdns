@@ -1,276 +1,71 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Loading Site...</title>
+    <meta charset="utf-8">
+    <title>Redirecting to meektion.github.io</title>
+    <meta http-equiv="refresh" content="0; url=https://meektion.github.io">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            text-align: center;
-            padding: 20px;
         }
-        
         .container {
-            max-width: 600px;
             background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
             padding: 40px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
         }
-        
         h1 {
-            font-size: 2.5rem;
             margin-bottom: 20px;
-            font-weight: 700;
+            font-size: 1.8rem;
         }
-        
-        p {
-            font-size: 1.2rem;
-            line-height: 1.6;
-            margin-bottom: 25px;
-            opacity: 0.9;
-        }
-        
         .loader {
-            width: 60px;
-            height: 60px;
             border: 5px solid rgba(255, 255, 255, 0.3);
+            border-top: 5px solid white;
             border-radius: 50%;
-            border-top-color: white;
-            margin: 20px auto;
+            width: 50px;
+            height: 50px;
             animation: spin 1s linear infinite;
+            margin: 20px auto;
         }
-        
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        
-        .btn {
-            display: inline-block;
-            background: white;
-            color: #2575fc;
-            padding: 12px 30px;
-            border-radius: 50px;
+        a {
+            color: #ffeb3b;
             text-decoration: none;
-            font-weight: 600;
-            margin-top: 10px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-        
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-        }
-        
-        .info-box {
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 10px;
-            padding: 20px;
-            margin-top: 30px;
-            text-align: left;
-        }
-        
-        .info-box h3 {
-            margin-bottom: 10px;
-            font-size: 1.2rem;
-        }
-        
-        .info-box ul {
-            list-style-type: none;
-            padding-left: 10px;
-        }
-        
-        .info-box li {
-            margin-bottom: 8px;
-            position: relative;
-            padding-left: 20px;
-        }
-        
-        .info-box li:before {
-            content: "•";
-            position: absolute;
-            left: 0;
-            color: #6a11cb;
             font-weight: bold;
         }
-        
-        .status {
+        a:hover {
+            text-decoration: underline;
+        }
+        .info {
             margin-top: 20px;
             font-size: 0.9rem;
             opacity: 0.8;
-        }
-        
-        .domain {
-            font-weight: bold;
-            color: #ffcc00;
-        }
-        
-        .source-domain {
-            color: #4cd964;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Loading Content</h1>
-        <p>We're fetching content from the primary site. Please wait...</p>
-        
+        <h1>Redirecting to meektion.github.io</h1>
         <div class="loader"></div>
-        
-        <p class="status">Fetching from: <span class="domain source-domain" id="source-domain">https://meektion.github.io</span></p>
-        <p class="status">Displaying as: <span class="domain" id="target-domain">https://meektion.dpdns.org</span></p>
-        
-        <a href="#" class="btn" id="manual-redirect">Click here if not redirected</a>
-        
-        <div class="info-box">
-            <h3>How this works:</h3>
-            <ul>
-                <li>Content is loaded from: <strong>meektion.github.io</strong></li>
-                <li>Displayed on domain: <strong>meektion.dpdns.org</strong></li>
-                <li>All links are rewritten to maintain the current domain</li>
-                <li>This allows custom domains to serve GitHub Pages content</li>
-            </ul>
-        </div>
+        <p>If you are not redirected automatically, <a href="https://meektion.github.io">click here</a>.</p>
+        <p class="info">From: meektion.dpdns.org → To: meektion.github.io</p>
     </div>
-
+    
     <script>
-        // Configuration
-        const CONFIG = {
-            primarySiteUrl: 'https://meektion.github.io', // Source: where content comes FROM
-            proxyDomain: 'https://meektion.dpdns.org',    // Target: what users SEE in address bar
-            enableLinkRewriting: true,
-            fallbackRedirect: true
-        };
-        
-        // Update displayed domains
-        document.getElementById('source-domain').textContent = CONFIG.primarySiteUrl;
-        document.getElementById('target-domain').textContent = CONFIG.proxyDomain;
-        
-        // Manual redirect button
-        document.getElementById('manual-redirect').addEventListener('click', function(e) {
-            e.preventDefault();
-            // Redirect to the proxy domain, not the source
-            window.location.replace(CONFIG.proxyDomain + window.location.pathname);
-        });
-        
-        // Main proxy function
-        (async function() {
-            try {
-                const targetUrl = CONFIG.primarySiteUrl + window.location.pathname + window.location.search;
-                
-                console.log('Fetching content from:', targetUrl);
-                console.log('Will display as:', CONFIG.proxyDomain);
-                
-                const response = await fetch(targetUrl);
-                
-                if (response.ok) {
-                    const html = await response.text();
-                    
-                    // Parse the HTML
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
-                    
-                    // Rewrite links if enabled
-                    if (CONFIG.enableLinkRewriting) {
-                        rewriteLinks(doc, CONFIG.primarySiteUrl, CONFIG.proxyDomain);
-                    }
-                    
-                    // Replace the current document
-                    document.open();
-                    document.write(doc.documentElement.outerHTML);
-                    document.close();
-                    
-                    console.log('Content loaded successfully from GitHub, displayed with custom domain');
-                    
-                } else {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-                
-            } catch (error) {
-                console.error('Proxy failed:', error);
-                
-                // Fallback to redirect
-                if (CONFIG.fallbackRedirect) {
-                    console.log('Falling back to redirect');
-                    window.location.replace(CONFIG.proxyDomain + window.location.pathname);
-                } else {
-                    // Show error message
-                    document.querySelector('.container').innerHTML = `
-                        <h1>Connection Error</h1>
-                        <p>We couldn't load content from the source site.</p>
-                        <p><strong>Source:</strong> ${CONFIG.primarySiteUrl}</p>
-                        <p><strong>Error:</strong> ${error.message}</p>
-                        <a href="${CONFIG.proxyDomain}" class="btn">Visit Site</a>
-                        <div class="info-box">
-                            <h3>Troubleshooting tips:</h3>
-                            <ul>
-                                <li>Check if your source site URL is correct</li>
-                                <li>Verify the source site is accessible</li>
-                                <li>Check your network connection</li>
-                                <li>Try refreshing the page</li>
-                            </ul>
-                        </div>
-                    `;
-                }
-            }
-        })();
-        
-        // Function to rewrite links in the document
-        function rewriteLinks(doc, oldBase, newBase) {
-            // Process anchor tags
-            const links = doc.querySelectorAll('a[href]');
-            links.forEach(link => {
-                const href = link.getAttribute('href');
-                if (href.startsWith(oldBase)) {
-                    link.setAttribute('href', href.replace(oldBase, newBase));
-                } else if (href.startsWith('/')) {
-                    // Handle relative URLs - point to our proxy domain
-                    link.setAttribute('href', newBase + href);
-                }
-                // Note: External links (http/https) are left unchanged
-            });
-            
-            // Process other elements with URL attributes
-            const resources = doc.querySelectorAll('[src], [href]');
-            resources.forEach(resource => {
-                const src = resource.getAttribute('src') || resource.getAttribute('href');
-                if (src && src.startsWith(oldBase)) {
-                    if (resource.hasAttribute('src')) {
-                        resource.setAttribute('src', src.replace(oldBase, newBase));
-                    } else {
-                        resource.setAttribute('href', src.replace(oldBase, newBase));
-                    }
-                }
-            });
-            
-            // Update base tag if it exists, or create one
-            let baseTag = doc.querySelector('base');
-            if (!baseTag) {
-                baseTag = doc.createElement('base');
-                doc.head.prepend(baseTag);
-            }
-            baseTag.setAttribute('href', newBase);
-            
-            console.log('Links rewritten from', oldBase, 'to', newBase);
-        }
+        // 立即重定向到 GitHub Pages，保持路径和参数
+        window.location.replace('https://meektion.github.io' + window.location.pathname + window.location.search);
     </script>
 </body>
 </html>
